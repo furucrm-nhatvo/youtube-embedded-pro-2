@@ -1,0 +1,36 @@
+{
+    "id": "beOAjAO1Zf6",
+    "manifest_version": 1,
+    "name": "resolver YouTube Embedded Pro 2 Dev",
+    "description": "A Quip Live App",
+    "version_name": "0.1.0",
+    "version_number": 3,
+    "sizing_mode": "fill_container",
+    "initial_height": 300,
+    "initial_width": -1,
+    "toolbar_color": "violet",
+    "toolbar_icon": "assets/icons/toolbar.svg",
+    "thumbnail": "assets/icons/thumbnail.svg",
+    "js_files": ["dist/app.js", "src/iframe_api.js"],
+    "css_files": ["assets/styles.css"],
+    "disable_app_level_comments": false,
+    "csp_sources": {
+        "frame_srcs": [
+        "https://www.google.com/",
+        "https://www.youtube.com/",
+        "https://www.youtube.com/iframe_api"
+        ],
+        "script_srcs": [
+        "https://www.google.com/",
+        "https://www.youtube.com/",
+        "https://www.youtube.com/iframe_api"
+        ],
+        "connect_srcs": [
+        "https://www.google.com/",
+        "https://www.youtube.com/",
+        "https://www.youtube.com/iframe_api",
+        "https://*.cloudfunctions.net"
+        ],
+        "img_srcs": ["https://i.ytimg.com/"]
+    }
+}
