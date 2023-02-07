@@ -84,7 +84,7 @@ export default function YoutubePlaylistController(props: any) {
                     youtubeUrlRecords.map((record, index) => {
                         const listPin = rootRecord.getMyRecords().getRecords().filter(myRecord => record.get('vid') && myRecord.get('vid') === record.get('vid'))
                         return <>
-                            <YoutubeUrlInfo key={record.getId()} record={record} index={index} player={props.player}></YoutubeUrlInfo>
+                            <YoutubeUrlInfo key={record.getId()} record={record} index={index} player={props.player} listPin={listPin}></YoutubeUrlInfo>
                             <ListPin
                                 vid={record.get('vid')}
                                 listRecord={listPin}
