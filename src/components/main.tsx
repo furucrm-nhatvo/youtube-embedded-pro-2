@@ -1,3 +1,4 @@
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faClipboard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import quip from "quip-apps-api";
@@ -145,7 +146,9 @@ export default class Main extends Component<MainProps, MainState> {
         const rootRecord = quip.apps.getRootRecord() as RootEntity;
         const youtubeUrlRecordList = rootRecord.getYoutubeUrlRecords();
         youtubeUrlRecordList.add({
-          url:shareUrl
+          url:shareUrl,
+          embedUrl,
+          vid
         })
         return embedUrl;
     }
@@ -212,15 +215,21 @@ export default class Main extends Component<MainProps, MainState> {
                 rootRecord.set('commentHighlight', false)
             }
         })
-        rootRecord.listen(this.updateUrl)
+        rootRecord.listen(this.updateCurrentVideo)
     }
     componentWillUnmount(){
-        this.props.rootRecord.unlisten(this.updateUrl)
+        this.props.rootRecord.unlisten(this.updateCurrentVideo)
     }
-    updateUrl = (record:any)=>{
+    updateCurrentVideo = (record:any)=>{
         if(!record.get('embedUrl')){
             this.setEmbededUrl('')
+            return
         }
+        this.setState({
+            // embedUrl: record.get('embedUrl'),
+            shareUrl: record.get('shareUrl'),
+            // vid: record.get('vid')
+        })
     }
     checkSubdomain = async () => {
         // kiem tra trong root có subdomain hien tai khong
@@ -364,7 +373,7 @@ export default class Main extends Component<MainProps, MainState> {
                         {
                             this.state.embedUrl != null && this.state.embedUrl != '' && this.validateYouTubeUrl() &&
                             <div className="input-group-text" style={{ cursor: "pointer" }} onClick={() => this.clickToCopy()}>
-                                <FontAwesomeIcon icon={faClipboard} />
+                                <FontAwesomeIcon icon={faClipboard as IconProp} />
                             </div>
                         }
                     </div>

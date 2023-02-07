@@ -195,34 +195,37 @@ textarea {
     margin: 0;
 }
 
-.list-pin::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px #7f7f7f;
     border-radius: 10px;
     background-color: #7f7f7f;
 }
 
-.list-pin::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background: #fff;
     border: 1px solid #7f7f7f;
     border-radius: 10px;
 }
 
-.list-pin.hide-scrollbar::-webkit-scrollbar-track {
+/* .hide-scrollbar::-webkit-scrollbar-track {
     box-shadow: unset;
     border-radius: 0px;
     background-color: transparent;
 }
 
-.list-pin.hide-scrollbar::-webkit-scrollbar-thumb {
+.hide-scrollbar::-webkit-scrollbar-thumb {
     background: transparent;
     border: none;
     border-radius: 0px;
-}
+} */
 
-/* .list-pin.hide-scrollbar {
+.hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
-} */
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
 .li-item {
     display: flex;

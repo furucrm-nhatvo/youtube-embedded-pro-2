@@ -26,6 +26,7 @@ export class RootEntity extends quip.apps.RootRecord {
             shareUrl: "string",
             vid: "string",
             start: "string",
+            startTime:"number",
             readonly: "boolean",
             myRecords: quip.apps.RecordList.Type(MyRecord),
             height: "number",

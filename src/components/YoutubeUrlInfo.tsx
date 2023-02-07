@@ -1,8 +1,8 @@
+import { debounce } from 'lodash';
 import quip from "quip-apps-api";
 import React, { useCallback, useState } from "react";
 import { RootEntity } from "../model/root";
 import YoutubeUrlRecord from "../model/YoutubeUrlRecord";
-import { debounce } from 'lodash';
 import CommentToggleable from "./CommentToggleable";
 
 const hourMinuteToSecond = (str: string) => {
@@ -20,12 +20,18 @@ const secondToHourMinute = (seconds: number) => {
 function generateTimeDisplay(max = 24) {
     return Array(max).fill(0).map((_, index) => '00'.slice(`${index}`.length) + index)
 }
+const shortnerUrl: any = 'https://youtu.be';
+const queryParamKeywordStart: any = 't';
+const queryParamKeywordVid: any = 'v';
+const urlEmbed = 'https://www.youtube.com/embed/';
 export default function YoutubeUrlInfo({
     index,
     record,
+    player,
 }: {
     index: number;
     record: YoutubeUrlRecord;
+    player: any;
 }) {
     const rootRecord = quip.apps.getRootRecord() as RootEntity
     const youtubeUrlRecordList = rootRecord.getYoutubeUrlRecords()
@@ -39,8 +45,56 @@ export default function YoutubeUrlInfo({
     const [endHours, setEndHours] = useState(secondToHourMinute(record.getData().endTime)[0])
     const [endMinutes, setEndMinutes] = useState(secondToHourMinute(record.getData().endTime)[1])
     const [endSeconds, setEndSeconds] = useState(secondToHourMinute(record.getData().endTime)[2])
+    const getURL = (value: string) => {
+        try {
+            return new URL(value);
+        } catch {
+        }
+    }
     const handleChangeUrl = (event: any) => {
-        setUrl(event.target.value)
+        const { value } = event.target
+        setUrl(value)
+        const url = getURL(value);
+        if (!url) {
+            return
+        }
+        let vid, start: any = "";
+        let params = new URLSearchParams(url.search);
+
+        let embedUrl: any = urlEmbed;
+        let shareUrl = "";
+        // video id
+        if (url.origin === shortnerUrl && url.pathname !== '/') {
+            // rootRecord.set("vid", url.pathname.replace('/', ''));
+            embedUrl = embedUrl + url.pathname.replace('/', '');
+            vid = url.pathname.replace('/', '');
+        } else if (params.has(queryParamKeywordVid)) {
+            // rootRecord.set("vid", params.get(queryParamKeywordVid));
+            embedUrl = embedUrl + params.get(queryParamKeywordVid);
+            vid = params.get(queryParamKeywordVid)
+        } else {
+            rootRecord.set("embedUrl", "");
+            rootRecord.set("shareUrl", value);
+            rootRecord.set("vid", "");
+            rootRecord.set("start", "");
+        }
+
+        // sta rt position
+        if (params.has(queryParamKeywordStart)) {
+            // rootRecord.set("start", params.get(queryParamKeywordStart));
+            embedUrl = embedUrl + "?t=" + params.get(queryParamKeywordStart);
+            start = params.get(queryParamKeywordStart)
+        } else {
+            // rootRecord.set("start", "");
+        }
+
+        shareUrl = embedUrl.replace(urlEmbed, shortnerUrl + "/");
+
+        setUrl(shareUrl)
+
+        record.set('url', shareUrl)
+        record.set('embedUrl', embedUrl)
+        record.set('vid', vid)
     }
     const addRecord = () => {
         const newRecord = youtubeUrlRecordList.add({}, index + 1)
@@ -49,7 +103,7 @@ export default function YoutubeUrlInfo({
     }
     const deleteRecord = () => {
         youtubeUrlRecordList.remove(record)
-        if(youtubeUrlRecordList.getRecords().length === 0){
+        if (youtubeUrlRecordList.getRecords().length === 0) {
             rootRecord.set('embedUrl', undefined)
             rootRecord.set('shareUrl', undefined)
             rootRecord.set('vid', undefined)
@@ -161,32 +215,84 @@ export default function YoutubeUrlInfo({
         }
 
     }
+    const playVideo = () => {
+        if (player) {
+            player.loadVideoById({
+                'videoId': record.get('vid'),
+                'startSeconds': record.get('startTime') || 0,
+                // 'endSeconds': 60
+            });
+            rootRecord.set('embedUrl', record.get('embedUrl'))
+            rootRecord.set('shareUrl', record.get('url'))
+            rootRecord.set('vid', record.get('vid'))
+            rootRecord.set('startTime', record.get('startTime'))
+        }
+    }
     return (
-        <div
-            style={{
-                background: "black",
-                padding: "5px 8px",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-            }}
-        >
-            {isEdit
-                ? <div
-                    style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
-                    onMouseLeave={() => {
-                        setEdit(false)
-                    }}
-                >
-                    <div
-                        onClick={addRecord}
+        <>
+            <div
+                style={{
+                    background: "black",
+                    padding: "5px 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                }}
+                className={'url-' + record.get('vid')}
+            >
+                {isEdit
+                    ? <div
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                        onMouseLeave={() => {
+                            setEdit(false)
+                        }}
+                    >
+                        <div
+                            onClick={addRecord}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "25px",
+                                height: "25px",
+                                background: "#19e76b",
+                                color: "white",
+                                border: "2px solid white",
+                                borderRadius: "4px",
+                                flexShrink: '0',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width={13} fill='white'><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
+                        </div>
+                        {youtubeUrlRecordList.getRecords().length > 1 && <div
+                            onClick={deleteRecord}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "25px",
+                                height: "25px",
+                                background: "red",
+                                color: "white",
+                                border: "2px solid white",
+                                borderRadius: "4px",
+                                flexShrink: '0',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <svg width={18} viewBox="0 0 24 24" fill='white'> <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /> </svg>
+                        </div>}
+                    </div>
+                    : <div
+                        onMouseEnter={() => setEdit(true)}
                         style={{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             width: "25px",
                             height: "25px",
-                            background: "#19e76b",
+                            background: "#197e6b",
                             color: "white",
                             border: "2px solid white",
                             borderRadius: "4px",
@@ -194,115 +300,83 @@ export default function YoutubeUrlInfo({
                             cursor: 'pointer'
                         }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width={13} fill='white'><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
+                        {index + 1}
                     </div>
-                    <div
-                        onClick={deleteRecord}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "25px",
-                            height: "25px",
-                            background: "red",
-                            color: "white",
-                            border: "2px solid white",
-                            borderRadius: "4px",
-                            flexShrink: '0',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <svg width={18} viewBox="0 0 24 24" fill='white'> <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /> </svg>
-                    </div>
+                }
+                <div style={{ position: 'relative' }}>
+                    <CommentToggleable comment={commentUrl}></CommentToggleable>
+                    {record.get('vid') && <div onClick={playVideo} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: '5px', display: 'flex', cursor: 'pointer' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="black" width={24}><path d="M16 37.85v-28l22 14Z" /></svg>
+                    </div>}
+                    <input style={{ background: 'white', height: '25px', width: '270px', flexShrink: '0' }}
+                        value={url}
+                        onChange={handleChangeUrl}
+                    ></input>
                 </div>
-                : <div
-                    onMouseEnter={() => setEdit(true)}
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "25px",
-                        height: "25px",
-                        background: "#197e6b",
-                        color: "white",
-                        border: "2px solid white",
-                        borderRadius: "4px",
-                        flexShrink: '0',
-                        cursor: 'pointer'
-                    }}
-                >
-                    {index + 1}
+                <div style={{ position: 'relative', background: "white", borderRadius: "4px", width: "80px", height: '25px', flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CommentToggleable comment={commentStartTime}></CommentToggleable>
+                    <input
+                        type='number'
+                        value={startHours}
+                        name='startHours'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
+                    <p style={{ marginTop: '12px' }}>:</p>
+                    <input
+                        type='number'
+                        value={startMinutes}
+                        name='startMinutes'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
+                    <p style={{ marginTop: '12px' }}>:</p>
+                    <input
+                        type='number'
+                        value={startSeconds}
+                        name='startSeconds'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
                 </div>
-            }
-            <div style={{ position: 'relative' }}>
-                <CommentToggleable comment={commentUrl}></CommentToggleable>
-                <input style={{ background: 'white', height: '25px', width: '220px', flexShrink: '0' }}
-                    value={url}
-                    onChange={handleChangeUrl}
-                ></input>
+                <div style={{ position: 'relative', background: "white", borderRadius: "4px", width: "80px", height: '25px', flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CommentToggleable comment={commentEndTime}></CommentToggleable>
+                    <input
+                        type='number'
+                        value={endHours}
+                        name='endHours'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
+                    <p style={{ marginTop: '12px' }}>:</p>
+                    <input
+                        type='number'
+                        value={endMinutes}
+                        name='endMinutes'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
+                    <p style={{ marginTop: '12px' }}>:</p>
+                    <input
+                        type='number'
+                        value={endSeconds}
+                        name='endSeconds'
+                        onChange={handleInputChange}
+                        onBlur={handleUnfocusInput}
+                        style={{ width: '22px', border: 'none', padding: '2px' }}
+                    ></input>
+                </div>
+                <div style={{ position: 'relative', background: "white", width: "100%", borderRadius: "4px", padding: '2px 10px' }}>
+                    <CommentToggleable comment={commentContent}></CommentToggleable>
+                    <quip.apps.ui.RichTextBox record={content}></quip.apps.ui.RichTextBox>
+                </div>
             </div>
-            <div style={{ position: 'relative', background: "white", borderRadius: "4px", width: "80px", height: '25px', flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CommentToggleable comment={commentStartTime}></CommentToggleable>
-                <input
-                    type='number'
-                    value={startHours}
-                    name='startHours'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-                <p style={{ marginTop: '12px' }}>:</p>
-                <input
-                    type='number'
-                    value={startMinutes}
-                    name='startMinutes'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-                <p style={{ marginTop: '12px' }}>:</p>
-                <input
-                    type='number'
-                    value={startSeconds}
-                    name='startSeconds'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-            </div>
-            <div style={{ position: 'relative', background: "white", borderRadius: "4px", width: "80px", height: '25px', flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CommentToggleable comment={commentEndTime}></CommentToggleable>
-                <input
-                    type='number'
-                    value={endHours}
-                    name='endHours'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-                <p style={{ marginTop: '12px' }}>:</p>
-                <input
-                    type='number'
-                    value={endMinutes}
-                    name='endMinutes'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-                <p style={{ marginTop: '12px' }}>:</p>
-                <input
-                    type='number'
-                    value={endSeconds}
-                    name='endSeconds'
-                    onChange={handleInputChange}
-                    onBlur={handleUnfocusInput}
-                    style={{ width: '22px', border: 'none', padding: '2px' }}
-                ></input>
-            </div>
-            <div style={{ position: 'relative', background: "white", width: "100%", borderRadius: "4px", padding: '2px 10px' }}>
-                <CommentToggleable comment={commentContent}></CommentToggleable>
-                <quip.apps.ui.RichTextBox record={content}></quip.apps.ui.RichTextBox>
-            </div>
-        </div>
+           
+        </>
     );
 }

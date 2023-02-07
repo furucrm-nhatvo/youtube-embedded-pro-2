@@ -223,8 +223,8 @@ export default React.memo(React.forwardRef((props: any, ref: any) => {
   };
   return (
     <>
-      <div className="li-item" ref={ref}>
-
+      <div className="li-item" ref={ref} style={{position:'relative'}}>
+        {props.disabled && <div style={{position:'absolute', width:'100%', height:'100%', zIndex:'2', background:'#0000003d', top:'0', left:'0'}}></div>}
         <div
           className="li-item-time"
 
@@ -260,7 +260,7 @@ export default React.memo(React.forwardRef((props: any, ref: any) => {
             <button className="item-time__btn" onClick={onClickEditBtn}>
                 <ClockRotateRightIcon width="15" height="15" />
               </button>
-              <div className="item-time__text" onClick={() => {
+              <div className="item-time__text" style={{color:props.disabled?'grey':'#197e6b'}} onClick={() => {
                 if (isHighlighted) {
                   return
                 }

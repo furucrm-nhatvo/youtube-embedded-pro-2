@@ -6,6 +6,8 @@ import CommentableRecord from "./CommentableRecord";
 export default class YoutubeUrlRecord extends quip.apps.Record {
     static getProperties = () => ({
         url: "string",
+        vid:"string",
+        embedUrl:"string",
         content : quip.apps.RichTextRecord,
         startTime:'number',
         endTime:'number',

@@ -21,7 +21,7 @@ export default function CommentToggleable({ comment }: { comment: CommentableRec
             <span
                 className='custom-comment'
                 ref={c => comment.setDom(c!)}
-                style={{ cursor: 'pointer', pointerEvents: rootRecord.get('isHighlighted') ? 'auto' : 'none' }}
+                style={{ cursor: 'pointer', pointerEvents: rootRecord.get('commentHighlight') ? 'auto' : 'none' }}
             >
                 <quip.apps.ui.CommentsTrigger
                     record={comment}

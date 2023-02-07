@@ -24,6 +24,7 @@ export default class MyRecord extends quip.apps.Record {
         userPin: "object",
         userUpdate: "object",
         clickedPinList: "array",
+        vid:'string'
     })
     private listenedChildren: CommentableRecord[] = []
 

@@ -1,12 +1,11 @@
-import React, { Component, createRef } from "react";
-import quip from "quip-apps-api";
-import VideoPin from "./components/VideoPin";
-import {isEqual} from "lodash"
-import {RootEntity} from "./model/root";
-import Dialog from "./components/Dialog";
-import RootRecord from "quip-apps-api/dist/root-record";
 import moment from "moment";
+import quip from "quip-apps-api";
+import React, { Component, createRef } from "react";
+import Dialog from "./components/Dialog";
+import VideoPin from "./components/VideoPin";
 import MyRecord from "./model/MyRecord";
+import { RootEntity } from "./model/root";
+import { parseYoutubeVideoId } from "./utils";
 
 export default class extends Component<any,any> {
   YT : any
@@ -83,18 +82,18 @@ export default class extends Component<any,any> {
     })
     this.YT = YT
   }
-  shouldComponentUpdate(newProps : any,newState : any){
+  // shouldComponentUpdate(newProps : any,newState : any){
 
-    return(
-      !isEqual(this.state,newState) ||
-      !isEqual(this.props.vid,newProps.vid)
-    )
-  }
-  componentDidUpdate(newProps : any){
-    if(!isEqual(this.props.vid,newProps.vid)){
-      this.loadVideo()
-    }
-  }
+  //   return(
+  //     !isEqual(this.state,newState) ||
+  //     !isEqual(this.props.vid,newProps.vid)
+  //   )
+  // }
+  // componentDidUpdate(newProps : any){
+  //   if(!isEqual(this.props.vid,newProps.vid)){
+  //     this.loadVideo()
+  //   }
+  // }
   onPlayerReady = (event: any) => {
     this.setState({ duration: event.target.getDuration() });
   }
@@ -192,13 +191,20 @@ export default class extends Component<any,any> {
     const {currentTime} = this.YT.playerInfo
     const rootRecord = quip.apps.getRootRecord() as RootEntity;
     const myRecords = rootRecord.getMyRecords();
+    const currentVideoId = parseYoutubeVideoId(this.YT.getVideoUrl())
+    const currentVideoRecord = rootRecord.getYoutubeUrlRecords().getRecords().find(record=>record.get('vid') === currentVideoId)
+    if(!currentVideoRecord) return
     // if(!rootRecord.get("readonly")){
     //   this.props.setReadOnly(true)
     // }
-    if(myRecords.getRecords().some(record=>Math.floor(record.get('time')) === Math.floor(currentTime))) {
+    if(myRecords.getRecords().some(record=>record.get('vid') === currentVideoId && Math.floor(record.get('time')) === Math.floor(currentTime))) {
       return
     }
-    const myRecord: any = { title: "Title " + Math.random(), time: currentTime };
+    
+    if(currentTime > currentVideoRecord?.get('endTime') || currentTime < currentVideoRecord?.get('startTime')){
+      return
+    }
+    const myRecord: any = { title: "Title " + Math.random(), time: currentTime, vid: currentVideoId};
     // Set pin user
     const currentUser: quip.apps.User | undefined = quip.apps.getViewingUser();
     if (currentUser) {
@@ -213,11 +219,11 @@ export default class extends Component<any,any> {
     return newRecord.getData().id || undefined
   }
   seekTo = (id: string, time : number) => {
-    if (id == null) {
-      this.YT.seekTo(this.YT.getCurrentTime() + time);
-      return;
-    }
-    this.YT.seekTo(time);
+    // if (id == null) {
+    //   this.YT.seekTo(this.YT.getCurrentTime() + time);
+    //   return;
+    // }
+    // this.YT.seekTo(time);
 
 
     // Update clicked pin list
@@ -395,7 +401,7 @@ export default class extends Component<any,any> {
             }
           </div>
           {!this.state.displayIframe && (
-            <div className="video-container" ref={this.resizersRef} style={{height: this.state.height || "auto"}}>
+            <div>
               <VideoPin
                 player={this.YT}
                 openImportDialog={this.props.openImportDialog}
@@ -414,9 +420,7 @@ export default class extends Component<any,any> {
                 duration={this.state.duration}
                 parentHeight={this.state.height}
               />
-              <div className="video-container__ruller-container">
-                <div className="video-container__ruller" onMouseDown={this.onMouseDown}></div>
-              </div>
+              
             </div>
           )}
         </div>
