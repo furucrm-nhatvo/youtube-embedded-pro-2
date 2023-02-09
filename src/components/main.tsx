@@ -255,7 +255,7 @@ export default class Main extends Component<MainProps, MainState> {
     }
     fetchLicense = async (subdomain:string) =>{
         try {
-            const response = await fetch(`https://asia-northeast1-rqa-backend.cloudfunctions.net/licenseManager-checkLicense?subdomain=${subdomain}&app=${'res-yep'}`)
+            const response = await fetch(`https://asia-northeast1-rqa-backend.cloudfunctions.net/licenseManager-checkLicense?subdomain=${subdomain}&app=${'res-yep2'}`)
             return await response.json()
         } catch(e){
             return {}
