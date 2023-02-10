@@ -76,7 +76,9 @@ const rullerContainerStyle = {
   display: "flex",
   justifyContent: "center",
   width: "100%",
-  bottom: "1px"
+  bottom: "1px",
+  border:'1px solid black',
+  borderTop:'none'
 } as React.CSSProperties;
 const rullerStyle = {
   width: "80px",

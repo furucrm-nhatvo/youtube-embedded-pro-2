@@ -339,7 +339,7 @@ export default class Main extends Component<MainProps, MainState> {
         return (
             <>
                 
-                <div className={"root"} style={{ display: "block", overflow: 'hidden', padding: quip.apps.isMobile() ? '0 10px 10px 0' : '0', }}>
+                <div className={"root"} style={{ display: "block", overflow: 'hidden', padding: quip.apps.isMobile() ? '0 10px 10px 0' : '1px', }}>
                     <CommentHighlight></CommentHighlight>
                     {this.state.isImportDialogOpen
                         && <DialogWrapper>

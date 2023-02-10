@@ -4,7 +4,7 @@
     "name": "resolver YouTube Embedded Pro 2 Dev",
     "description": "A Quip Live App",
     "version_name": "0.1.0",
-    "version_number": 4,
+    "version_number": 6,
     "sizing_mode": "fill_container",
     "initial_height": 300,
     "initial_width": -1,

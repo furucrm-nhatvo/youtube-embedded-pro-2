@@ -51,7 +51,7 @@ export class RootEntity extends quip.apps.RootRecord {
             youtubeUrlRecords: [],
             cards: [],
             readonly: false,
-            height: 0,
+            height: 50,
             showTimeline: false,
             showAnalysis: false,
             playCount:{},

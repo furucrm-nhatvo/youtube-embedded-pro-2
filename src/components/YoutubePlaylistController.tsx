@@ -77,7 +77,7 @@ export default function YoutubePlaylistController(props: any) {
             <div 
                  className={"container" + (isListPinScrolling ? "" : " hide-scrollbar")}
                 onScroll={handleListPinScroll}
-                style={{ height: rootRecord.get('height') + 'px', overflow: 'auto' }}
+                style={{ height: rootRecord.get('height') + 'px', overflow: 'auto', border:'1px solid black' }}
                 >
                 <div className='scroll-container' style={{position:'relative'}}>
                 {
@@ -104,7 +104,7 @@ export default function YoutubePlaylistController(props: any) {
                 }
                 </div>
             </div>
-            <Ruller containerCls='container' wrapperCls='root' minHeight={200} rootRecordVar='height'></Ruller>
+            <Ruller containerCls='container' wrapperCls='root' minHeight={50} rootRecordVar='height'></Ruller>
         </>
     )
 }
