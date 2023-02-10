@@ -2,6 +2,7 @@ import $ from "jquery";
 import quip from 'quip-apps-api';
 import React, { useMemo } from 'react';
 import MyRecord from '../model/MyRecord';
+import { RootEntity } from "../model/root";
 import Item from './Item';
 
 export default function ListPin({ listRecord, startTime, endTime, handler, vid }: { listRecord: MyRecord[], startTime: number, endTime: number, handler: any, vid:string }) {
@@ -10,12 +11,13 @@ export default function ListPin({ listRecord, startTime, endTime, handler, vid }
     );
 
    
-    const rootRecord = quip.apps.getRootRecord()
+    const rootRecord = quip.apps.getRootRecord() as RootEntity
     const goToTime = (id: string, time: number, pinIndex: number) => {
         handler.seekTo(id, time)
         const videoId = vid
         const itemHeight = document.querySelector('.li-item')?.getBoundingClientRect().height || 33
-        const urlEle = document.querySelector('.url-'+ videoId) as HTMLElement
+        const youtubeUrlRecord = rootRecord.getYoutubeUrlRecords().getRecords().find(record=>record.get('vid')===videoId)
+        const urlEle = document.querySelector('.url-'+ youtubeUrlRecord?.getId() || '') as HTMLElement
         if(!urlEle) return
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return

@@ -106,7 +106,7 @@ export default function YoutubeUrlInfo({
         newRecord.set('startTime', record?.get('endTime') || 0)
         newRecord.set('endTime', record?.get('endTime') || 0)
         const itemHeight = document.querySelector('.li-item')?.getBoundingClientRect().height || 33
-        const urlEle = document.querySelector('.url-'+ record.get('vid')) as HTMLElement
+        const urlEle = document.querySelector('.url-'+ record.getId()) as HTMLElement
         if(!urlEle) return
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return
@@ -276,7 +276,7 @@ export default function YoutubeUrlInfo({
                     alignItems: "center",
                     gap: "10px",
                 }}
-                className={'url-' + record.get('vid')}
+                className={'url-' + record.getId()}
             >
                 {isEdit
                     ? <div
