@@ -14,7 +14,8 @@ export default class YoutubeUrlRecord extends quip.apps.Record {
         commentUrl : CommentableRecord,
         commentStartTime : CommentableRecord,
         commentEndTime : CommentableRecord,
-        commentContent : CommentableRecord
+        commentContent : CommentableRecord,
+        title:'string'
     })
     private listenedChildren: CommentableRecord[] = []
 
@@ -40,7 +41,7 @@ export default class YoutubeUrlRecord extends quip.apps.Record {
     }
     static getDefaultProperties = () => ({
         content: {
-            RichText_placeholderText : ""
+            RichText_placeholderText : "Note"
         },
         startTime: 0,
         endTime: 0,
@@ -58,6 +59,7 @@ export default class YoutubeUrlRecord extends quip.apps.Record {
         return {
             id: this.getId(),
             url:this.get('url') as string,
+            title:this.get('title') as string,
             content: this.get("content") as quip.apps.RichTextRecord,
             startTime: this.get('startTime') as number,
             endTime: this.get('endTime') as number,

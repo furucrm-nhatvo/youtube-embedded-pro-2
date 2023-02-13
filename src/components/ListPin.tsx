@@ -21,11 +21,11 @@ export default function ListPin({ listRecord, startTime, endTime, handler, vid }
         if(!urlEle) return
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return
-        const scrollToTopDistance = urlEle.offsetTop + itemHeight*(pinIndex+1) + rootRecord.get('height')
+        const scrollToTopDistance = (urlEle.parentElement?.offsetTop || 0) + itemHeight*(pinIndex+1) + rootRecord.get('height')
         if(scrollContainer.getBoundingClientRect().height < scrollToTopDistance) {
             scrollContainer.style.height = scrollToTopDistance + 'px'
         }
-        $(".container").animate({ scrollTop: urlEle.offsetTop + itemHeight*(pinIndex+1) }, 500);
+        $(".container").animate({ scrollTop: (urlEle.parentElement?.offsetTop || 0) + itemHeight*(pinIndex+1) }, 500);
     }
    
     const displayListRecord = useMemo(() => {

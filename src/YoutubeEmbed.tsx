@@ -98,12 +98,28 @@ export default class extends Component<any,any> {
     this.setState({ duration: event.target.getDuration() });
   }
   onPlayerStateChange = (event : any) => {
+    const rootRecord = quip.apps.getRootRecord() as RootEntity;
     this.setState({videoState : event.data})
+    if(event.data === 1){
+      const {video_id, title} = event.target.getVideoData() || {}
+      if(video_id){
+        const currentYoutubeUrlRecord = rootRecord.getYoutubeUrlRecords().getRecords().find(record=>record.get('vid') === video_id)
+        if(currentYoutubeUrlRecord){
+          if(!currentYoutubeUrlRecord.get('endTime')){
+            currentYoutubeUrlRecord.set('endTime', event.target.getDuration())
+          }
+          if(!currentYoutubeUrlRecord.get('title')){
+            currentYoutubeUrlRecord.set('title', title)
+          }
+        }
+      }
+      
+    }
     if (event.data === 1) {
       this.handlePlayCount()
     }
     if (event.data === 0) {
-      const rootRecord = quip.apps.getRootRecord() as RootEntity;
+      
       const playCount = rootRecord.get('playCount');
       const playbackCountingCycle: string = rootRecord.get('playbackCountingCycle');
       if (playCount.data && playbackCountingCycle === 'playtime') {
@@ -201,9 +217,9 @@ export default class extends Component<any,any> {
       return
     }
     
-    if(currentTime > currentVideoRecord?.get('endTime') || currentTime < currentVideoRecord?.get('startTime')){
-      return
-    }
+    // if(currentTime > currentVideoRecord?.get('endTime') || currentTime < currentVideoRecord?.get('startTime')){
+    //   return
+    // }
     const myRecord: any = { title: "Title " + Math.random(), time: currentTime, vid: currentVideoId};
     // Set pin user
     const currentUser: quip.apps.User | undefined = quip.apps.getViewingUser();

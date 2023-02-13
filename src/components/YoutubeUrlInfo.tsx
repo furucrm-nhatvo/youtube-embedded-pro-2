@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 import quip from "quip-apps-api";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import MyRecord from '../model/MyRecord';
 import { RootEntity } from "../model/root";
 import YoutubeUrlRecord from "../model/YoutubeUrlRecord";
@@ -31,18 +31,20 @@ export default function YoutubeUrlInfo({
     index,
     record,
     player,
-    listPin
+    listPin,
+    isPlaying
 }: {
     index: number;
     record: YoutubeUrlRecord;
     player: any;
-    listPin:MyRecord[]
+    listPin:MyRecord[];
+    isPlaying:boolean;
 }) {
     const rootRecord = quip.apps.getRootRecord() as RootEntity
     const youtubeUrlRecordList = rootRecord.getYoutubeUrlRecords()
     const content = record.getContent();
     const { commentUrl, commentStartTime, commentEndTime, commentContent } = record.getData()
-    const [url, setUrl] = useState(record.getData().url)
+    const [url, setUrl] = useState(record.getData().title || record.getData().url)
     const [isEdit, setEdit] = useState(false)
     const [startHours, setStartHours] = useState(secondToHourMinute(record.getData().startTime)[0])
     const [startMinutes, setStartMinutes] = useState(secondToHourMinute(record.getData().startTime)[1])
@@ -103,18 +105,17 @@ export default function YoutubeUrlInfo({
     }
     const addRecord = () => {
         const newRecord = youtubeUrlRecordList.add({}, index + 1)
-        newRecord.set('startTime', record?.get('endTime') || 0)
-        newRecord.set('endTime', record?.get('endTime') || 0)
         const itemHeight = document.querySelector('.li-item')?.getBoundingClientRect().height || 33
         const urlEle = document.querySelector('.url-'+ record.getId()) as HTMLElement
         if(!urlEle) return
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return
-        const scrollToTopDistance = urlEle.offsetTop + itemHeight*(listPin.length + 1) + rootRecord.get('height')
+        const scrollToTopDistance = (urlEle.parentElement?.offsetTop || 0) + itemHeight*(listPin.length + 1) + rootRecord.get('height')
+
         if(scrollContainer.getBoundingClientRect().height < scrollToTopDistance) {
             scrollContainer.style.height = scrollToTopDistance + 'px'
         }
-        $(".container").animate({ scrollTop: urlEle.offsetTop + itemHeight*(listPin.length + 1) }, 500);
+        $(".container").animate({ scrollTop: (urlEle.parentElement?.offsetTop || 0) + itemHeight*(listPin.length + 1) }, 500);
     }
     const deleteRecord = () => {
         youtubeUrlRecordList.remove(record)
@@ -266,6 +267,23 @@ export default function YoutubeUrlInfo({
             }
         }
     }
+    useEffect(()=>{
+        record.listen(updateVideoInfo)
+        return ()=>{
+            record.unlisten(updateVideoInfo)
+        }
+    },[])
+    const updateVideoInfo = (record:YoutubeUrlRecord)=>{
+        if(record.get('title')){
+            setUrl(record.get('title'))
+        }
+        if(record.get('endTime') && endHours === '00' && endMinutes === '00' && endSeconds === '00'){
+            const [newHours, newMinutes, newSeconds] = secondToHourMinute(record.get('endTime'))
+            setEndHours(newHours)
+            setEndMinutes(newMinutes)
+            setEndSeconds(newSeconds)
+        }
+    }
     return (
         <>
             <div
@@ -330,7 +348,7 @@ export default function YoutubeUrlInfo({
                             justifyContent: "center",
                             width: "25px",
                             height: "25px",
-                            background: "#197e6b",
+                            background: isPlaying ? '#FF0000'  :"#197e6b",
                             color: "white",
                             border: "2px solid white",
                             borderRadius: "4px",
@@ -343,12 +361,13 @@ export default function YoutubeUrlInfo({
                 }
                 <div style={{ position: 'relative' }}>
                     <CommentToggleable comment={commentUrl}></CommentToggleable>
-                    {validateYouTubeUrl(url) && <div onClick={playVideo} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: '5px', display: 'flex', cursor: 'pointer' }}>
+                    {validateYouTubeUrl(record.get('url')) && <div onClick={playVideo} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '0px', display: 'flex', cursor: 'pointer' }}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="black" width={24}><path d="M16 37.85v-28l22 14Z" /></svg>
                     </div>}
-                    <input style={{ background: 'white', height: '25px', width: '270px', flexShrink: '0' }}
+                    <input style={{ background: 'white', height: '25px', width: '270px', flexShrink: '0', paddingLeft: validateYouTubeUrl(record.get('url'))?'20px':'10px'}}
                         value={url}
                         onChange={handleChangeUrl}
+                        placeholder='YouTube URL'
                     ></input>
                 </div>
                 <div style={{ position: 'relative', background: "white", borderRadius: "4px", width: "80px", height: '25px', flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

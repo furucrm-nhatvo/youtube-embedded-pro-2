@@ -12,6 +12,7 @@ import ClockIcon from "../components/ClockIcon";
 import ClockRotateRightIcon from "../components/ClockRotateRightIcon";
 import moment from "moment";
 import { RootEntity } from "../model/root";
+import { Icon, IconProp } from "@fortawesome/fontawesome-svg-core";
 export default React.memo(React.forwardRef((props: any, ref: any) => {
   const {
     id,
@@ -314,7 +315,7 @@ export default React.memo(React.forwardRef((props: any, ref: any) => {
           <div className="like-container">
             <div className="clicked-pin-container__item">
               <div className="play-icon">
-                <FontAwesomeIcon icon={faPlay} />
+                <FontAwesomeIcon icon={faPlay as IconProp} />
               </div>
               <div
                 data-tip
@@ -333,7 +334,7 @@ export default React.memo(React.forwardRef((props: any, ref: any) => {
                 className={"btn-like " + (isLiked ? "liked" : "")}
                 onClick={onClickLikeBtn}
               >
-                <FontAwesomeIcon icon={faThumbsUp} />
+                <FontAwesomeIcon icon={faThumbsUp as IconProp} />
               </button>
               <div
                 data-tip
@@ -385,7 +386,7 @@ export default React.memo(React.forwardRef((props: any, ref: any) => {
             />
           </div>
           <div className="btn-remove" onClick={onClickRemoveBtn}>
-            <FontAwesomeIcon icon={faRemove} />
+            <FontAwesomeIcon icon={faRemove as IconProp} />
           </div>
         </div>
       </div>

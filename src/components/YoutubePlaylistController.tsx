@@ -83,8 +83,11 @@ export default function YoutubePlaylistController(props: any) {
                 {
                     youtubeUrlRecords.map((record, index) => {
                         const listPin = rootRecord.getMyRecords().getRecords().filter(myRecord => record.get('vid') && myRecord.get('vid') === record.get('vid'))
-                        return <>
-                            <YoutubeUrlInfo key={record.getId()} record={record} index={index} player={props.player} listPin={listPin}></YoutubeUrlInfo>
+                        const isPlaying = rootRecord.get('vid') === record.get('vid')
+                        return <div style={{position:'relative'}}>
+                            {isPlaying && <div style={{position:'absolute', width:'3px', height:'100%', top:'0', left:'0', zIndex:'3', background:'#FF0000'}}></div>}
+                            {!isPlaying && <div style={{position:'absolute', width:'100%', height:'100%', zIndex:'2', background:'#0000003d', top:'0', left:'0', pointerEvents:'none'}}></div>}
+                            <YoutubeUrlInfo key={record.getId()} record={record} index={index} player={props.player} listPin={listPin} isPlaying={isPlaying}></YoutubeUrlInfo>
                             <ListPin
                                 vid={record.get('vid')}
                                 listRecord={listPin}
@@ -99,7 +102,7 @@ export default function YoutubePlaylistController(props: any) {
                                 }}
 
                             ></ListPin>
-                        </>
+                        </div>
                     })
                 }
                 </div>
