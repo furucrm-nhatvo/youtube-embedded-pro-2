@@ -906,9 +906,9 @@ textarea {
     z-index: 2;
   }
   input::placeholder {
-    color: #8e8e8e;
+    color: rgb(128,128,128);
 }
-  .editor-default-section-text-overlay.element-overlay{
-      opacity: 1 !important;
-      color: #8e8e8e !important;
-  }
+.rich-text-box .section.default-content {
+    opacity: 1 !important;
+
+}
