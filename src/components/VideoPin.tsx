@@ -68,6 +68,11 @@ export default (props: any) => {
         const youtubeUrlRecord = rootRecord.getYoutubeUrlRecords().getRecords().find(record=>record.get('vid')===videoId)
         const urlEle = document.querySelector('.url-'+ youtubeUrlRecord?.getId() || '') as HTMLElement
         if(!urlEle) return
+        const newHeight = Math.min(rootRecord.get('height')+(urlEle.getBoundingClientRect().height||35), 105)
+        if(rootRecord.getYoutubeUrlRecords().getRecords().length<=3 && rootRecord.get('height')+urlEle.getBoundingClientRect().height <= 130){
+            rootRecord.set('height', newHeight)
+            return
+        }
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return
         const scrollToTopDistance = (urlEle.parentElement?.offsetTop || 0) + itemHeight*(pinIndex+1) + rootRecord.get('height')

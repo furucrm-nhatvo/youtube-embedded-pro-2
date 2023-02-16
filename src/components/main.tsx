@@ -359,7 +359,7 @@ export default class Main extends Component<MainProps, MainState> {
                                 </div>
                             </div>
                         </DialogWrapper>}
-                    <div className="input-group" style={{ width: '100%' }}>
+                    {this.props.rootRecord.getYoutubeUrlRecords().getRecords().length === 0 && <div className="input-group" style={{ width: '100%' }}>
                         <input
                             className="form-control"
                             type="text"
@@ -376,7 +376,7 @@ export default class Main extends Component<MainProps, MainState> {
                                 <FontAwesomeIcon icon={faClipboard as IconProp} />
                             </div>
                         }
-                    </div>
+                    </div>}
                     {
                         this.state.embedUrl != null && this.state.embedUrl != '' && this.validateYouTubeUrl() &&
                         <div style={{ position: "relative" }}>

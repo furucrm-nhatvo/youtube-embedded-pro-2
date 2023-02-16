@@ -912,3 +912,9 @@ textarea {
     opacity: 1 !important;
 
 }
+.play-icon-small{
+    fill: #bfbfbf;
+}
+.play-icon-small:hover{
+    fill: #ff0000;
+}

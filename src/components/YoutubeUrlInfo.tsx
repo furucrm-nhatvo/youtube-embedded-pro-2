@@ -108,6 +108,11 @@ export default function YoutubeUrlInfo({
         const itemHeight = document.querySelector('.li-item')?.getBoundingClientRect().height || 33
         const urlEle = document.querySelector('.url-'+ record.getId()) as HTMLElement
         if(!urlEle) return
+        const newHeight = Math.min(rootRecord.get('height')+(urlEle.getBoundingClientRect().height||35), 105)
+        if(youtubeUrlRecordList.getRecords().length<=3 && rootRecord.get('height')+urlEle.getBoundingClientRect().height <= 130){
+            rootRecord.set('height', newHeight)
+            return
+        }
         const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
         if(!scrollContainer) return
         const scrollToTopDistance = (urlEle.parentElement?.offsetTop || 0) + itemHeight*(listPin.length + 1) + rootRecord.get('height')
@@ -362,7 +367,7 @@ export default function YoutubeUrlInfo({
                 <div style={{ position: 'relative' }}>
                     <CommentToggleable comment={commentUrl}></CommentToggleable>
                     {validateYouTubeUrl(record.get('url')) && <div onClick={playVideo} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '0px', display: 'flex', cursor: 'pointer' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="black" width={24}><path d="M16 37.85v-28l22 14Z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className='play-icon-small' width={24}><path d="M16 37.85v-28l22 14Z" /></svg>
                     </div>}
                     <input style={{ background: 'white', height: '25px', width: '270px', flexShrink: '0', paddingLeft: validateYouTubeUrl(record.get('url'))?'20px':'10px'}}
                         value={url}
